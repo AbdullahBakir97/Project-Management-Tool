@@ -1,16 +1,20 @@
 <template>
     <div class="task-board">
       <h1>Task Board</h1>
+      <!-- Form for creating tasks -->
       <form @submit.prevent="createTask">
+        <!-- Existing fields -->
         <input v-model="newTask.title" placeholder="Title" required />
         <textarea v-model="newTask.description" placeholder="Description"></textarea>
         <select v-model="newTask.status">
           <option v-for="status in statuses" :key="status" :value="status">{{ statusLabels[status] }}</option>
         </select>
-        <input type="date" v-model="newTask.due_date" />
-        <input v-model="newTask.assigned_to" placeholder="Assign to user ID" />
+        <input type="date" v-model="newTask.start_date" placeholder="Start Date" />
+        <input type="date" v-model="newTask.end_date" placeholder="End Date" />
         <button type="submit">Add Task</button>
       </form>
+  
+      <!-- Task Board Columns -->
       <div class="columns">
         <div class="column" v-for="status in statuses" :key="status">
           <h2>{{ statusLabels[status] }}</h2>
@@ -25,6 +29,9 @@
           </draggable>
         </div>
       </div>
+  
+      <!-- Gantt Chart -->
+      <GanttChart />
     </div>
   </template>
   
@@ -32,11 +39,13 @@
   import { mapActions, mapGetters } from 'vuex';
   import draggable from 'vuedraggable';
   import TaskCard from './TaskCard.vue';
+  import GanttChart from './GanttChart.vue';
   
   export default {
     components: {
       draggable,
       TaskCard,
+      GanttChart,
     },
     data() {
       return {
@@ -44,8 +53,8 @@
           title: '',
           description: '',
           status: 'TODO',
-          due_date: null,
-          priority: 1,
+          start_date: null,
+          end_date: null,
         },
         statuses: ['TODO', 'IN_PROGRESS', 'DONE'],
         statusLabels: {
@@ -73,7 +82,7 @@
       },
       async deleteTask(taskId) {
         try {
-          await api.delete(`tasks/${taskId}/`);
+          await this.$store.dispatch('deleteTask', taskId);
           this.fetchTasks();
         } catch (error) {
           console.error('Error deleting task:', error);

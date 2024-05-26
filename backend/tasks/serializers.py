@@ -13,4 +13,4 @@ class TaskSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Task
-        fields = ['id', 'title', 'description', 'status', 'assigned_to', 'assigned_to_id', 'due_date', 'created_at', 'updated_at']
+        fields = ['id', 'title', 'description', 'status', 'assigned_to', 'assigned_to_id', 'due_date', 'start_date', 'end_date', 'created_at', 'updated_at']

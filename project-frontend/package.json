@@ -10,6 +10,7 @@
   "dependencies": {
     "axios": "^1.7.2",
     "core-js": "^3.8.3",
+    "dhtmlx-gantt": "^8.0.7",
     "vue": "^3.2.13",
     "vuedraggable": "^2.24.3",
     "vuex": "^4.1.0"
