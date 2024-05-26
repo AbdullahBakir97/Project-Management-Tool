@@ -4,74 +4,79 @@
       <form @submit.prevent="createTask">
         <input v-model="newTask.title" placeholder="Title" required />
         <textarea v-model="newTask.description" placeholder="Description"></textarea>
+        <select v-model="newTask.status">
+          <option v-for="status in statuses" :key="status" :value="status">{{ statusLabels[status] }}</option>
+        </select>
+        <input type="date" v-model="newTask.due_date" />
+        <input v-model="newTask.assigned_to" placeholder="Assign to user ID" />
         <button type="submit">Add Task</button>
       </form>
       <div class="columns">
         <div class="column" v-for="status in statuses" :key="status">
-          <h2>{{ status }}</h2>
-          <draggable v-model="filteredTasks(status)" @end="onEnd">
-            <div class="task" v-for="task in filteredTasks(status)" :key="task.id">
-              <p>{{ task.title }}</p>
-              <p>{{ task.description }}</p>
-            </div>
+          <h2>{{ statusLabels[status] }}</h2>
+          <draggable v-model="tasksByStatus(status)" @end="onEnd">
+            <TaskCard
+              v-for="task in tasksByStatus(status)"
+              :key="task.id"
+              :task="task"
+              @edit="editTask"
+              @delete="deleteTask"
+            />
           </draggable>
         </div>
       </div>
-</div>
-</template>
+    </div>
+  </template>
   
   <script>
-  import api from '../services/api';
+  import { mapActions, mapGetters } from 'vuex';
   import draggable from 'vuedraggable';
+  import TaskCard from './TaskCard.vue';
   
   export default {
     components: {
       draggable,
+      TaskCard,
     },
     data() {
       return {
-        tasks: [],
         newTask: {
           title: '',
           description: '',
           status: 'TODO',
+          due_date: null,
+          priority: 1,
         },
         statuses: ['TODO', 'IN_PROGRESS', 'DONE'],
+        statusLabels: {
+          'TODO': 'To Do',
+          'IN_PROGRESS': 'In Progress',
+          'DONE': 'Done',
+        },
       };
+    },
+    computed: {
+      ...mapGetters(['tasksByStatus']),
     },
     created() {
       this.fetchTasks();
     },
     methods: {
-      async fetchTasks() {
-        try {
-          const response = await api.get('tasks/');
-          this.tasks = response.data;
-        } catch (error) {
-          console.error('Error fetching tasks:', error);
-        }
-      },
-      filteredTasks(status) {
-        return this.tasks.filter(task => task.status === status);
-      },
-      async createTask() {
-        try {
-          const response = await api.post('tasks/', this.newTask);
-          this.tasks.push(response.data);
-          this.newTask.title = '';
-          this.newTask.description = '';
-        } catch (error) {
-          console.error('Error creating task:', error);
-        }
-      },
-      async onEnd(evt) {
-        const movedTask = this.tasks[evt.oldIndex];
+      ...mapActions(['fetchTasks', 'createTask', 'updateTask']),
+      onEnd(evt) {
+        const movedTask = evt.item.__vue__.$data.task;
         movedTask.status = evt.to.dataset.status;
+        this.updateTask(movedTask);
+      },
+      editTask(task) {
+        this.newTask = { ...task };
+      },
+      async deleteTask(taskId) {
         try {
-          await api.put(`tasks/${movedTask.id}/`, movedTask);
+          await api.delete(`tasks/${taskId}/`);
           this.fetchTasks();
         } catch (error) {
-          console.error('Error updating task status:', error);
+          console.error('Error deleting task:', error);
         }
       },
     },
@@ -87,7 +92,7 @@
   form {
     margin-bottom: 20px;
   }
-  input, textarea {
+  input, textarea, select {
     display: block;
     margin-bottom: 10px;
   }
@@ -106,4 +111,3 @@
     margin-bottom: 10px;
   }
   </style>
-  
