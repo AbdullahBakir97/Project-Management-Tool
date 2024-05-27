@@ -19,3 +19,9 @@ class TimeEntrySerializer(serializers.ModelSerializer):
     class Meta:
         model = TimeEntry
         fields = '__all__'
+        
+        
+class CommentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Comment
+        fields = '__all__'
