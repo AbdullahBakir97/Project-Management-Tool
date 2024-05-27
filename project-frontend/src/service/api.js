@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'http://localhost:8000/api', // Change this to your actual API base URL
+  baseURL: 'http://localhost:8000/api',
 });
 
 export default {
@@ -27,7 +27,7 @@ export default {
         commit('setAuthToken', response.data.key);
       } catch (error) {
         console.error('Error logging in:', error);
-        throw error; // Propagate the error to the caller for handling
+        throw error;
       }
     },
     async logout({ commit }) {
@@ -36,7 +36,7 @@ export default {
         commit('clearAuthToken');
       } catch (error) {
         console.error('Error logging out:', error);
-        throw error; // Propagate the error to the caller for handling
+        throw error;
       }
     },
   },
