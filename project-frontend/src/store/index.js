@@ -12,6 +12,7 @@ export default new Vuex.Store({
   state: {
     tasks: [],
     timeEntries: [],
+    comments: [],
   },
   getters: {
     tasksByStatus: (state) => (status) => {
@@ -19,6 +20,9 @@ export default new Vuex.Store({
     },
     timeEntriesByTask: (state) => (taskId) => {
       return state.timeEntries.filter(entry => entry.task === taskId);
+    },
+    commentsByTask: (state) => (taskId) => {
+      return state.comments.filter(comment => comment.task === taskId);
     },
   },
   mutations: {
@@ -47,6 +51,18 @@ export default new Vuex.Store({
       const index = state.timeEntries.findIndex(entry => entry.id === updatedTimeEntry.id);
       if (index !== -1) {
         Vue.set(state.timeEntries, index, updatedTimeEntry);
+      }
+    },
+    setComments(state, comments) {
+      state.comments = comments;
+    },
+    addComment(state, comment) {
+      state.comments.push(comment);
+    },
+    updateComment(state, updatedComment) {
+      const index = state.comments.findIndex(comment => comment.id === updatedComment.id);
+      if (index !== -1) {
+        Vue.set(state.comments, index, updatedComment);
       }
     },
   },
@@ -107,6 +123,29 @@ export default new Vuex.Store({
         console.error('Error updating time entry:', error);
       }
     },
+    async fetchComments({ commit }) {
+      try {
+        const response = await api.get('comments/');
+        commit('setComments', response.data);
+      } catch (error) {
+        console.error('Error fetching comments:', error);
+      }
+    },
+    async createComment({ commit }, comment) {
+      try {
+        const response = await api.post('comments/', comment);
+        commit('addComment', response.data);
+      } catch (error) {
+        console.error('Error creating comment:', error);
+      }
+    },
+    async updateComment({ commit }, comment) {
+      try {
+        const response = await api.put(`comments/${comment.id}/`, comment);
+        commit('updateComment', response.data);
+      } catch (error) {
+        console.error('Error updating comment:', error);
+      }
+    },
   },
-});
 });
