@@ -1,8 +1,8 @@
 import axios from 'axios';
 
-const api = {
-  get: (url) => axios.get(url),
-};
+const api = axios.create({
+  baseURL: 'http://localhost:8000/api', // Change this to your actual API base URL
+});
 
 export default {
   state: {
@@ -22,12 +22,22 @@ export default {
   },
   actions: {
     async login({ commit }, credentials) {
-      const response = await api.post('auth/login/', credentials);
-      commit('setAuthToken', response.data.key);
+      try {
+        const response = await api.post('auth/login/', credentials);
+        commit('setAuthToken', response.data.key);
+      } catch (error) {
+        console.error('Error logging in:', error);
+        throw error; // Propagate the error to the caller for handling
+      }
     },
     async logout({ commit }) {
-      await api.post('auth/logout/');
-      commit('clearAuthToken');
+      try {
+        await api.post('auth/logout/');
+        commit('clearAuthToken');
+      } catch (error) {
+        console.error('Error logging out:', error);
+        throw error; // Propagate the error to the caller for handling
+      }
     },
   },
 };
