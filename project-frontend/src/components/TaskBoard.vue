@@ -1,130 +1,126 @@
 <template>
-    <div class="task-board">
-      <h1>Task Board</h1>
-      <!-- Form for creating tasks -->
-      <form @submit.prevent="createTask">
-        <!-- Existing fields -->
-        <input v-model="newTask.title" placeholder="Title" required />
-        <textarea v-model="newTask.description" placeholder="Description"></textarea>
-        <select v-model="newTask.status">
-          <option v-for="status in statuses" :key="status" :value="status">{{ statusLabels[status] }}</option>
-        </select>
-        <input type="date" v-model="newTask.start_date" placeholder="Start Date" />
-        <input type="date" v-model="newTask.end_date" placeholder="End Date" />
-        <button type="submit">Add Task</button>
-      </form>
-  
-      <!-- Task Board Columns -->
-      <div class="columns">
-        <div class="column" v-for="status in statuses" :key="status">
-          <h2>{{ statusLabels[status] }}</h2>
-          <draggable v-model="tasksByStatus(status)" @end="onEnd">
-            <TaskCard
-              v-for="task in tasksByStatus(status)"
-              :key="task.id"
-              :task="task"
-              @edit="editTask"
-              @delete="deleteTask"
-            />
-          </draggable>
-        </div>
-      </div>
-  
-      <!-- Gantt Chart -->
-      <GanttChart />
-			<TimeTracker :taskId="selectedTaskId" v-if="selectedTaskId" />
-	    <Comments :taskId="selectedTaskId" v-if="selectedTaskId" />
-    </div>
-  </template>
-  
-	<script>
+	<div class="project-list">
+		<h2>Projects</h2>
+		<ul>
+		<li v-for="project in projects" :key="project.id" @click="selectProject(project.id)">
+			{{ project.name }}
+		</li>
+		</ul>
+		<form @submit.prevent="createProject">
+		<input v-model="newProject.name" placeholder="New Project Name" required />
+		<button type="submit">Create Project</button>
+		</form>
+	</div>
+	<div class="task-columns">
+		<div v-for="status in statuses" :key="status" :data-status="status">
+		<h3>{{ statusLabels[status] }}</h3>
+		<draggable :list="tasksByStatus[status]" @end="onEnd">
+			<TaskCard v-for="task in tasksByStatus[status]" :key="task.id" :task="task" @edit-task="editTask" />
+		</draggable>
+		</div>
+	</div>
+	<form @submit.prevent="createTask">
+		<input v-model="newTask.title" placeholder="Task Title" required />
+		<select v-model="newTask.status" required>
+		<option v-for="status in statuses" :key="status" :value="status">{{ statusLabels[status] }}</option>
+		</select>
+		<input v-model="newTask.due_date" type="date" />
+		<button type="submit">Create Task</button>
+	</form>
+	<TimeTracker :taskId="selectedTaskId" v-if="selectedTaskId" />
+	<Comments :taskId="selectedTaskId" v-if="selectedTaskId" />
+	</div>
+</template>
+
+<script>
 	import { mapActions, mapGetters } from 'vuex';
 	import draggable from 'vuedraggable';
 	import TaskCard from './TaskCard.vue';
-	import GanttChart from './GanttChart.vue';
 	import TimeTracker from './TimeTracker.vue';
 	import Comments from './Comments.vue';
-	
+
 	export default {
-	  components: {
-	    draggable,
-	    TaskCard,
-	    GanttChart,
-	    TimeTracker,
-	    Comments,
-	  },
-	  data() {
-	    return {
-	      newTask: {
-	        title: '',
-	        description: '',
-	        status: 'TODO',
-	        start_date: null,
-	        end_date: null,
-	      },
-	      statuses: ['TODO', 'IN_PROGRESS', 'DONE'],
-	      statusLabels: {
-	        'TODO': 'To Do',
-	        'IN_PROGRESS': 'In Progress',
-	        'DONE': 'Done',
-	      },
-	      selectedTaskId: null,
-	    };
-	  },
-	  computed: {
-	    ...mapGetters(['tasksByStatus']),
-	  },
-	  created() {
-	    this.fetchTasks();
-	  },
-	  methods: {
-	    ...mapActions(['fetchTasks', 'createTask', 'updateTask']),
-	    onEnd(evt) {
-	      const movedTask = evt.item.__vue__.$data.task;
-	      movedTask.status = evt.to.dataset.status;
-	      this.updateTask(movedTask);
-	    },
-	    editTask(task) {
-	      this.newTask = { ...task };
-	      this.selectedTaskId = task.id;
-	    },
-	    async deleteTask(taskId) {
-	      try {
-	        await this.$store.dispatch('deleteTask', taskId);
-	        this.fetchTasks();
-	      } catch (error) {
-	        console.error('Error deleting task:', error);
-	      }
-	    },
-	  },
+	components: {
+	draggable,
+	TaskCard,
+	TimeTracker,
+	Comments,
+	},
+	data() {
+	return {
+		newProject: {
+		name: '',
+		},
+		newTask: {
+		title: '',
+		description: '',
+		status: 'TODO',
+		start_date: null,
+		end_date: null,
+		project: null,
+		},
+		statuses: ['TODO', 'IN_PROGRESS', 'DONE'],
+		statusLabels: {
+		'TODO': 'To Do',
+		'IN_PROGRESS': 'In Progress',
+		'DONE': 'Done',
+		},
+		selectedTaskId: null,
+		selectedProjectId: null,
 	};
-	</script>
-  
-  <style scoped>
-  .task-board {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-  form {
-    margin-bottom: 20px;
-  }
-  input, textarea, select {
-    display: block;
-    margin-bottom: 10px;
-  }
-  .columns {
-    display: flex;
-    justify-content: space-between;
-    width: 100%;
-  }
-  .column {
-    flex: 1;
-    margin: 0 10px;
-  }
-  .task {
-    border: 1px solid #ccc;
-    padding: 10px;
-    margin-bottom: 10px;
-  }
-  </style>
+	},
+	computed: {
+	...mapGetters(['projects', 'tasksByStatus']),
+	},
+	created() {
+	this.fetchProjects();
+	this.fetchTasks();
+	},
+	methods: {
+	...mapActions(['fetchProjects', 'createProject', 'fetchTasks', 'createTask']),
+	selectProject(projectId) {
+		this.selectedProjectId = projectId;
+		this.newTask.project = projectId;
+	},
+	async createProject() {
+		await this.createProject(this.newProject);
+		this.newProject.name = '';
+	},
+	async createTask() {
+		await this.createTask(this.newTask);
+		this.newTask.title = '';
+		this.newTask.description = '';
+		this.newTask.status = 'TODO';
+		this.newTask.start_date = null;
+		this.newTask.end_date = null;
+	},
+	onEnd(evt) {
+		const movedTask = evt.item.__vue__.$data.task;
+		movedTask.status = evt.to.dataset.status;
+		this.updateTask(movedTask);
+	},
+	editTask(task) {
+		this.newTask = { ...task };
+		this.selectedTaskId = task.id;
+	},
+	},
+	};
+</script>
+
+<style scoped>
+	.task-board {
+	display: flex;
+	flex-direction: row;
+	}
+	.project-list {
+	width: 200px;
+	border-right: 1px solid #ccc;
+	padding: 10px;
+	}
+	.task-columns {
+	display: flex;
+	flex-direction: row;
+	flex-grow: 1;
+	padding: 10px;
+	}
+</style>

@@ -40,6 +40,9 @@ INSTALLED_APPS = [
     
     
     'rest_framework',
+    'djoser',
+    'rest_framework.authtoken',
+    'django.contrib.sites',
     'corsheaders',
     'channels',
     'tasks',
@@ -61,6 +64,7 @@ MIDDLEWARE = [
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'rest_framework.authentication.TokenAuthentication',
         'rest_framework.authentication.SessionAuthentication',
         'rest_framework.authentication.BasicAuthentication',
     ],
@@ -68,6 +72,15 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.IsAuthenticated',
     ],
 }
+
+DJOSER = {
+    'USER_ID_FIELD': 'username',
+    'LOGIN_FIELD': 'email',
+}
+
+SITE_ID = 1
+
+AUTH_USER_MODEL = 'tasks.CustomUser'
 
 from datetime import timedelta
 

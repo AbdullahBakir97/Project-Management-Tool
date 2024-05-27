@@ -10,12 +10,16 @@ const api = axios.create({
 
 export default new Vuex.Store({
   state: {
+    projects: [],
     tasks: [],
     timeEntries: [],
     comments: [],
+    user: null,
+    authToken: localStorage.getItem('authToken') || null,
   },
   getters: {
-    tasksByStatus: (state) => (status) => {
+    projects: state => state.projects,
+    tasksByStatus: state => status => {
       return state.tasks.filter(task => task.status === status);
     },
     timeEntriesByTask: (state) => (taskId) => {
@@ -26,6 +30,25 @@ export default new Vuex.Store({
     },
   },
   mutations: {
+    setUser(state, user) {
+      state.user = user;
+    },
+    setAuthToken(state, token) {
+      state.authToken = token;
+      localStorage.setItem('authToken', token);
+      api.defaults.headers.common['Authorization'] = `Token ${token}`;
+    },
+    clearAuthToken(state) {
+      state.authToken = null;
+      localStorage.removeItem('authToken');
+      delete api.defaults.headers.common['Authorization'];
+    },
+    setProjects(state, projects) {
+      state.projects = projects;
+    },
+    addProject(state, project) {
+      state.projects.push(project);
+    },
     setTasks(state, tasks) {
       state.tasks = tasks;
     },
@@ -67,6 +90,28 @@ export default new Vuex.Store({
     },
   },
   actions: {
+    async login({ commit }, credentials) {
+      const response = await axios.post('http://localhost:8000/auth/token/login/', credentials);
+      commit('setAuthToken', response.data.auth_token);
+      await this.dispatch('fetchUser');
+    },
+    async logout({ commit }) {
+      await axios.post('http://localhost:8000/auth/token/logout/');
+      commit('clearAuthToken');
+      commit('setUser', null);
+    },
+    async fetchUser({ commit }) {
+      const response = await api.get('auth/users/me/');
+      commit('setUser', response.data);
+    },
+    async fetchProjects({ commit }) {
+      const response = await api.get('projects/');
+      commit('setProjects', response.data);
+    },
+    async createProject({ commit }, projectData) {
+      const response = await api.post('projects/', projectData);
+      commit('addProject', response.data);
+    },
     async fetchTasks({ commit }) {
       try {
         const response = await api.get('tasks/');
