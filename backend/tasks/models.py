@@ -44,7 +44,14 @@ class Task(models.Model):
 
     def __str__(self):
         return self.title
-
+    
+class File(models.Model):
+    task = models.ForeignKey(Task, related_name='files', on_delete=models.CASCADE)
+    uploaded_by = models.ForeignKey(User, on_delete=models.CASCADE)
+    file = models.FileField(upload_to='uploads/')
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+    
+    
 class TimeEntry(models.Model):
     task = models.ForeignKey(Task, on_delete=models.CASCADE, db_index=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE, db_index=True)
@@ -64,6 +71,12 @@ class TimeEntry(models.Model):
             self.duration = self.end_time - self.start_time
         super().save(*args, **kwargs)
         
+        
+class Event(models.Model):
+    title = models.CharField(max_length=255)
+    start_date = models.DateTimeField()
+    end_date = models.DateTimeField()
+    project = models.ForeignKey(Project, related_name='events', on_delete=models.CASCADE)
         
 class Comment(models.Model):
     task = models.ForeignKey(Task, on_delete=models.CASCADE, related_name='comments')

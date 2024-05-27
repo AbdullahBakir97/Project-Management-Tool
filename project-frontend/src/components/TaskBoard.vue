@@ -1,34 +1,46 @@
 <template>
-	<div class="project-list">
-		<h2>Projects</h2>
-		<ul>
-		<li v-for="project in projects" :key="project.id" @click="selectProject(project.id)">
-			{{ project.name }}
-		</li>
-		</ul>
-		<form @submit.prevent="createProject">
-		<input v-model="newProject.name" placeholder="New Project Name" required />
-		<button type="submit">Create Project</button>
-		</form>
-	</div>
-	<div class="task-columns">
-		<div v-for="status in statuses" :key="status" :data-status="status">
-		<h3>{{ statusLabels[status] }}</h3>
-		<draggable :list="tasksByStatus[status]" @end="onEnd">
-			<TaskCard v-for="task in tasksByStatus[status]" :key="task.id" :task="task" @edit-task="editTask" />
-		</draggable>
+	<div>
+		<div class="project-list">
+			<h2>Projects</h2>
+			<ul>
+				<li v-for="project in projects" :key="project.id" @click="selectProject(project.id)">
+					{{ project.name }}
+				</li>
+			</ul>
+			<form @submit.prevent="createProject">
+				<input v-model="newProject.name" placeholder="New Project Name" required />
+				<button type="submit">Create Project</button>
+			</form>
 		</div>
-	</div>
-	<form @submit.prevent="createTask">
-		<input v-model="newTask.title" placeholder="Task Title" required />
-		<select v-model="newTask.status" required>
-		<option v-for="status in statuses" :key="status" :value="status">{{ statusLabels[status] }}</option>
-		</select>
-		<input v-model="newTask.due_date" type="date" />
-		<button type="submit">Create Task</button>
-	</form>
-	<TimeTracker :taskId="selectedTaskId" v-if="selectedTaskId" />
-	<Comments :taskId="selectedTaskId" v-if="selectedTaskId" />
+		<div class="task-columns">
+			<div v-for="status in statuses" :key="status" :data-status="status">
+				<h3>{{ statusLabels[status] }}</h3>
+				<draggable :list="tasksByStatus[status]" @end="onEnd">
+					<TaskCard v-for="task in tasksByStatus[status]" :key="task.id" :task="task" @edit-task="editTask" />
+				</draggable>
+			</div>
+		</div>
+		<form @submit.prevent="createTask">
+			<input v-model="newTask.title" placeholder="Task Title" required />
+			<select v-model="newTask.status" required>
+				<option v-for="status in statuses" :key="status" :value="status">{{ statusLabels[status] }}</option>
+			</select>
+			<input v-model="newTask.due_date" type="date" />
+			<button type="submit">Create Task</button>
+		</form>
+		<TimeTracker :taskId="selectedTaskId" v-if="selectedTaskId" />
+		<Comments :taskId="selectedTaskId" v-if="selectedTaskId" />
+		<div class="file-upload">
+			<h3>Upload Files</h3>
+			<input type="file" @change="handleFileUpload">
+			<button @click="submitFile">Upload</button>
+			<ul>
+			  <li v-for="file in files" :key="file.id">{{ file.file }}</li>
+			</ul>
+		  </div>
+		  <FileList :taskId="selectedTaskId" v-if="selectedTaskId" />
+		  <FileUploader :taskId="selectedTaskId" v-if="selectedTaskId" />
+
 	</div>
 </template>
 
@@ -45,7 +57,10 @@
 	TaskCard,
 	TimeTracker,
 	Comments,
+	FileList,
+	FileUploader,
 	},
+	props: ['taskId'],
 	data() {
 	return {
 		newProject: {
@@ -59,6 +74,8 @@
 		end_date: null,
 		project: null,
 		},
+		selectedFile: null,
+      	files: [],
 		statuses: ['TODO', 'IN_PROGRESS', 'DONE'],
 		statusLabels: {
 		'TODO': 'To Do',
@@ -103,6 +120,22 @@
 		this.newTask = { ...task };
 		this.selectedTaskId = task.id;
 	},
+	handleFileUpload(event) {
+      this.selectedFile = event.target.files[0];
+    },
+    async submitFile() {
+      let formData = new FormData();
+      formData.append('file', this.selectedFile);
+      formData.append('task', this.taskId);
+      await this.$store.dispatch('uploadFile', formData);
+      this.fetchFiles();
+    },
+    async fetchFiles() {
+      this.files = await this.$store.dispatch('fetchFiles', this.taskId);
+    }
+	},
+	async created() {
+		this.fetchFiles();
 	},
 	};
 </script>

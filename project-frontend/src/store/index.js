@@ -64,9 +64,27 @@ export default new Vuex.Store({
     deleteTask(state, taskId) {
       state.tasks = state.tasks.filter(task => task.id !== taskId);
     },
+    addFile(state, file) {
+      state.files.push(file);
+    },
+    setFiles(state, files) {
+      state.files = files;
+    },
     setTimeEntries(state, timeEntries) {
+      if (!Array.isArray(timeEntries)) {
+        console.error('Invalid timeEntries data:', timeEntries);
+        return;
+      }
       state.timeEntries = timeEntries;
     },
+    (method) setTimeEntries((state: {
+      projects: any[];
+      tasks: any[];
+      timeEntries: any[];
+      comments: any[];
+      user: any;
+      authToken: string;
+    }, timeEntries: any): void
     addTimeEntry(state, timeEntry) {
       state.timeEntries.push(timeEntry);
     },
@@ -75,6 +93,9 @@ export default new Vuex.Store({
       if (index !== -1) {
         Vue.set(state.timeEntries, index, updatedTimeEntry);
       }
+    },
+    setEvents(state, events) {
+      state.events = events;
     },
     setComments(state, comments) {
       state.comments = comments;
@@ -143,6 +164,18 @@ export default new Vuex.Store({
       } catch (error) {
         console.error('Error deleting task:', error);
       }
+    },
+    async uploadFile({ commit }, formData) {
+      const response = await api.post('/files/', formData);
+      commit('addFile', response.data);
+    },
+    async fetchFiles({ commit }, taskId) {
+      const response = await api.get(`/files/?task=${taskId}`);
+      commit('setFiles', response.data);
+    },
+    async fetchEvents({ commit }) {
+      const response = await api.get('/events/');
+      commit('setEvents', response.data);
     },
     async fetchTimeEntries({ commit }) {
       try {

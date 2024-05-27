@@ -1,5 +1,5 @@
 from rest_framework import serializers 
-from .models import Task, TimeEntry, Comment, Project
+from .models import Task, TimeEntry, Comment, Project, File, Event
 from django.contrib.auth.models import User
 
 class UserSerializer(serializers.ModelSerializer):
@@ -29,4 +29,15 @@ class CommentSerializer(serializers.ModelSerializer):
 class ProjectSerializer(serializers.ModelSerializer):
     class Meta:
         model = Project
+        fields = '__all__'
+        
+class FileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = File
+        fields = '__all__'
+        
+
+class EventSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Event
         fields = '__all__'

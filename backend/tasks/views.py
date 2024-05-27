@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from rest_framework import viewsets,status
-from .models import Task, TimeEntry, Comment
-from .serializers import TaskSerializer, TimeEntrySerializer, CommentSerializer
+from .models import Task, TimeEntry, Comment, File, Event
+from .serializers import TaskSerializer, TimeEntrySerializer, CommentSerializer, FileSerializer, EventSerializer
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
@@ -49,3 +49,13 @@ def register(request):
 class CommentViewSet(viewsets.ModelViewSet):
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
+    
+    
+class FileViewSet(viewsets.ModelViewSet):
+    queryset = File.objects.all()
+    serializer_class = FileSerializer
+
+
+class EventViewSet(viewsets.ModelViewSet):
+    queryset = Event.objects.all()
+    serializer_class = EventSerializer
