@@ -1,33 +1,23 @@
-import Vue from 'vue';
-import Vuex from 'vuex';
-import axios from 'axios';
+import { createStore } from 'vuex'
+import api from '../service/api';
 
-Vue.use(Vuex);
 
-const api = axios.create({
-  baseURL: 'http://localhost:8000/api/',
-});
-
-export default new Vuex.Store({
+export default createStore({
   state: {
     projects: [],
     tasks: [],
     timeEntries: [],
     comments: [],
+    files: [],
     user: null,
     authToken: localStorage.getItem('authToken') || null,
   },
   getters: {
     projects: state => state.projects,
-    tasksByStatus: state => status => {
-      return state.tasks.filter(task => task.status === status);
-    },
-    timeEntriesByTask: (state) => (taskId) => {
-      return state.timeEntries.filter(entry => entry.task === taskId);
-    },
-    commentsByTask: (state) => (taskId) => {
-      return state.comments.filter(comment => comment.task === taskId);
-    },
+    tasksByStatus: state => status => state.tasks.filter(task => task.status === status),
+    timeEntriesByTask: state => taskId => state.timeEntries.filter(entry => entry.task === taskId),
+    commentsByTask: state => taskId => state.comments.filter(comment => comment.task === taskId),
+    filesByTask: state => taskId => state.files.filter(file => file.task === taskId),
   },
   mutations: {
     setUser(state, user) {
@@ -58,7 +48,7 @@ export default new Vuex.Store({
     updateTask(state, updatedTask) {
       const index = state.tasks.findIndex(task => task.id === updatedTask.id);
       if (index !== -1) {
-        Vue.set(state.tasks, index, updatedTask);
+        state.tasks.splice(index, 1, updatedTask);
       }
     },
     deleteTask(state, taskId) {
@@ -83,7 +73,7 @@ export default new Vuex.Store({
     updateTimeEntry(state, updatedTimeEntry) {
       const index = state.timeEntries.findIndex(entry => entry.id === updatedTimeEntry.id);
       if (index !== -1) {
-        Vue.set(state.timeEntries, index, updatedTimeEntry);
+        state.timeEntries.splice(index, 1, updatedTimeEntry);
       }
     },
     setEvents(state, events) {
@@ -98,7 +88,7 @@ export default new Vuex.Store({
     updateComment(state, updatedComment) {
       const index = state.comments.findIndex(comment => comment.id === updatedComment.id);
       if (index !== -1) {
-        Vue.set(state.comments, index, updatedComment);
+        state.comments.splice(index, 1, updatedComment);
       }
     },
     setTaskStatusData(state, data) {
@@ -110,12 +100,12 @@ export default new Vuex.Store({
   },
   actions: {
     async login({ commit }, credentials) {
-      const response = await axios.post('http://localhost:8000/auth/token/login/', credentials);
+      const response = await api.post('auth/token/login/', credentials);
       commit('setAuthToken', response.data.auth_token);
       await this.dispatch('fetchUser');
     },
     async logout({ commit }) {
-      await axios.post('http://localhost:8000/auth/token/logout/');
+      await api.post('auth/token/logout/');
       commit('clearAuthToken');
       commit('setUser', null);
     },

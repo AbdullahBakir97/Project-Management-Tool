@@ -72,7 +72,7 @@ def task_status_report(request):
 
 @api_view(['GET'])
 def project_time_report(request, project_id):
-    data = Task.objects.filter(project_id=project_id).aggregate(total_time=Sum('time_spent'))
+    data = Task.objects.filter(project_id=project_id).aggregate(total_time=Sum('duration'))
     return JsonResponse(data)
 
 
