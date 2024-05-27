@@ -11,10 +11,14 @@ const api = axios.create({
 export default new Vuex.Store({
   state: {
     tasks: [],
+    timeEntries: [],
   },
   getters: {
     tasksByStatus: (state) => (status) => {
       return state.tasks.filter(task => task.status === status);
+    },
+    timeEntriesByTask: (state) => (taskId) => {
+      return state.timeEntries.filter(entry => entry.task === taskId);
     },
   },
   mutations: {
@@ -32,6 +36,18 @@ export default new Vuex.Store({
     },
     deleteTask(state, taskId) {
       state.tasks = state.tasks.filter(task => task.id !== taskId);
+    },
+    setTimeEntries(state, timeEntries) {
+      state.timeEntries = timeEntries;
+    },
+    addTimeEntry(state, timeEntry) {
+      state.timeEntries.push(timeEntry);
+    },
+    updateTimeEntry(state, updatedTimeEntry) {
+      const index = state.timeEntries.findIndex(entry => entry.id === updatedTimeEntry.id);
+      if (index !== -1) {
+        Vue.set(state.timeEntries, index, updatedTimeEntry);
+      }
     },
   },
   actions: {
@@ -67,5 +83,30 @@ export default new Vuex.Store({
         console.error('Error deleting task:', error);
       }
     },
+    async fetchTimeEntries({ commit }) {
+      try {
+        const response = await api.get('time-entries/');
+        commit('setTimeEntries', response.data);
+      } catch (error) {
+        console.error('Error fetching time entries:', error);
+      }
+    },
+    async createTimeEntry({ commit }, timeEntry) {
+      try {
+        const response = await api.post('time-entries/', timeEntry);
+        commit('addTimeEntry', response.data);
+      } catch (error) {
+        console.error('Error creating time entry:', error);
+      }
+    },
+    async updateTimeEntry({ commit }, timeEntry) {
+      try {
+        const response = await api.put(`time-entries/${timeEntry.id}/`, timeEntry);
+        commit('updateTimeEntry', response.data);
+      } catch (error) {
+        console.error('Error updating time entry:', error);
+      }
+    },
   },
+});
 });
