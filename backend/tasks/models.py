@@ -20,3 +20,17 @@ class Task(models.Model):
 
     def __str__(self):
         return self.title
+
+class TimeEntry(models.Model):
+    task = models.ForeignKey(Task, on_delete=models.CASCADE, related_name='time_entries')
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    start_time = models.DateTimeField()
+    end_time = models.DateTimeField(null=True, blank=True)
+    duration = models.DurationField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def save(self, *args, **kwargs):
+        if self.end_time:
+            self.duration = self.end_time - self.start_time
+        super().save(*args, **kwargs)
