@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from rest_framework import viewsets,status
-from .models import Task
-from .serializers import TaskSerializer
+from .models import Task, TimeEntry
+from .serializers import TaskSerializer, TimeEntrySerializer
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
@@ -16,7 +16,9 @@ class TaskViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         serializer.save()
 
-
+class TimeEntryViewSet(viewsets.ModelViewSet):
+    queryset = TimeEntry.objects.all()
+    serializer_class = TimeEntrySerializer
 
 @api_view(['POST'])
 def register(request):
