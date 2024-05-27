@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
 from pathlib import Path
+from celery.schedules import crontab
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -31,6 +32,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'accounts',
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -45,6 +47,7 @@ INSTALLED_APPS = [
     'django.contrib.sites',
     'corsheaders',
     'channels',
+    'django_celery_beat',
     'tasks',
     
 ]
@@ -60,6 +63,13 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
+CELERY_BROKER_URL = 'redis://localhost:6379/0'
+CELERY_BEAT_SCHEDULE = {
+    'send-reminders': {
+        'task': 'send_reminders',
+        'schedule': crontab(hour=7, minute=30, day_of_week='mon-fri'),
+    },
+}
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
@@ -80,7 +90,7 @@ DJOSER = {
 
 SITE_ID = 1
 
-AUTH_USER_MODEL = 'tasks.CustomUser'
+AUTH_USER_MODEL = 'accounts.CustomUser'
 
 from datetime import timedelta
 

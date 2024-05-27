@@ -1,15 +1,16 @@
 from rest_framework import serializers 
 from .models import Task, TimeEntry, Comment, Project, File, Event
+from accounts.models import CustomUser
 from django.contrib.auth.models import User
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
-        model = User
+        model = CustomUser
         fields = ['id', 'username', 'email']
 
 class TaskSerializer(serializers.ModelSerializer):
     assigned_to = UserSerializer(read_only=True)
-    assigned_to_id = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), source='assigned_to', write_only=True)
+    assigned_to_id = serializers.PrimaryKeyRelatedField(queryset=CustomUser.objects.all(), source='assigned_to', write_only=True)
 
     class Meta:
         model = Task

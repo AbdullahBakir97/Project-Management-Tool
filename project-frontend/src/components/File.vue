@@ -13,10 +13,10 @@
     export default {
         props: ['taskId'],
         data() {
-        return {
-            selectedFile: null,
-            files: []
-        };
+            return {
+                selectedFile: null,
+                files: []
+            };
         },
         methods: {
         handleFileUpload(event) {

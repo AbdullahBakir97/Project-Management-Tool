@@ -77,14 +77,6 @@ export default new Vuex.Store({
       }
       state.timeEntries = timeEntries;
     },
-    (method) setTimeEntries((state: {
-      projects: any[];
-      tasks: any[];
-      timeEntries: any[];
-      comments: any[];
-      user: any;
-      authToken: string;
-    }, timeEntries: any): void
     addTimeEntry(state, timeEntry) {
       state.timeEntries.push(timeEntry);
     },
@@ -108,6 +100,12 @@ export default new Vuex.Store({
       if (index !== -1) {
         Vue.set(state.comments, index, updatedComment);
       }
+    },
+    setTaskStatusData(state, data) {
+      state.taskStatusData = data;
+    },
+    setProjectTimeData(state, data) {
+      state.projectTimeData = data;
     },
   },
   actions: {
@@ -224,6 +222,14 @@ export default new Vuex.Store({
       } catch (error) {
         console.error('Error updating comment:', error);
       }
+    },
+    async fetchTaskStatusReport({ commit }) {
+      const response = await api.get('/report/task-status/');
+      commit('setTaskStatusData', response.data);
+    },
+    async fetchProjectTimeReport({ commit }, projectId) {
+      const response = await api.get(`/report/project-time/${projectId}/`);
+      commit('setProjectTimeData', response.data);
     },
   },
 });
