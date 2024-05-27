@@ -34,3 +34,11 @@ class TimeEntry(models.Model):
         if self.end_time:
             self.duration = self.end_time - self.start_time
         super().save(*args, **kwargs)
+        
+        
+class Comment(models.Model):
+    task = models.ForeignKey(Task, on_delete=models.CASCADE, related_name='comments')
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    content = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
