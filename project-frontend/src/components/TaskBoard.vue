@@ -32,65 +32,73 @@
   
       <!-- Gantt Chart -->
       <GanttChart />
+			<TimeTracker :taskId="selectedTaskId" v-if="selectedTaskId" />
+	    <Comments :taskId="selectedTaskId" v-if="selectedTaskId" />
     </div>
   </template>
   
-  <script>
-  import { mapActions, mapGetters } from 'vuex';
-  import draggable from 'vuedraggable';
-  import TaskCard from './TaskCard.vue';
-  import GanttChart from './GanttChart.vue';
-  
-  export default {
-    components: {
-      draggable,
-      TaskCard,
-      GanttChart,
-    },
-    data() {
-      return {
-        newTask: {
-          title: '',
-          description: '',
-          status: 'TODO',
-          start_date: null,
-          end_date: null,
-        },
-        statuses: ['TODO', 'IN_PROGRESS', 'DONE'],
-        statusLabels: {
-          'TODO': 'To Do',
-          'IN_PROGRESS': 'In Progress',
-          'DONE': 'Done',
-        },
-      };
-    },
-    computed: {
-      ...mapGetters(['tasksByStatus']),
-    },
-    created() {
-      this.fetchTasks();
-    },
-    methods: {
-      ...mapActions(['fetchTasks', 'createTask', 'updateTask']),
-      onEnd(evt) {
-        const movedTask = evt.item.__vue__.$data.task;
-        movedTask.status = evt.to.dataset.status;
-        this.updateTask(movedTask);
-      },
-      editTask(task) {
-        this.newTask = { ...task };
-      },
-      async deleteTask(taskId) {
-        try {
-          await this.$store.dispatch('deleteTask', taskId);
-          this.fetchTasks();
-        } catch (error) {
-          console.error('Error deleting task:', error);
-        }
-      },
-    },
-  };
-  </script>
+	<script>
+	import { mapActions, mapGetters } from 'vuex';
+	import draggable from 'vuedraggable';
+	import TaskCard from './TaskCard.vue';
+	import GanttChart from './GanttChart.vue';
+	import TimeTracker from './TimeTracker.vue';
+	import Comments from './Comments.vue';
+	
+	export default {
+	  components: {
+	    draggable,
+	    TaskCard,
+	    GanttChart,
+	    TimeTracker,
+	    Comments,
+	  },
+	  data() {
+	    return {
+	      newTask: {
+	        title: '',
+	        description: '',
+	        status: 'TODO',
+	        start_date: null,
+	        end_date: null,
+	      },
+	      statuses: ['TODO', 'IN_PROGRESS', 'DONE'],
+	      statusLabels: {
+	        'TODO': 'To Do',
+	        'IN_PROGRESS': 'In Progress',
+	        'DONE': 'Done',
+	      },
+	      selectedTaskId: null,
+	    };
+	  },
+	  computed: {
+	    ...mapGetters(['tasksByStatus']),
+	  },
+	  created() {
+	    this.fetchTasks();
+	  },
+	  methods: {
+	    ...mapActions(['fetchTasks', 'createTask', 'updateTask']),
+	    onEnd(evt) {
+	      const movedTask = evt.item.__vue__.$data.task;
+	      movedTask.status = evt.to.dataset.status;
+	      this.updateTask(movedTask);
+	    },
+	    editTask(task) {
+	      this.newTask = { ...task };
+	      this.selectedTaskId = task.id;
+	    },
+	    async deleteTask(taskId) {
+	      try {
+	        await this.$store.dispatch('deleteTask', taskId);
+	        this.fetchTasks();
+	      } catch (error) {
+	        console.error('Error deleting task:', error);
+	      }
+	    },
+	  },
+	};
+	</script>
   
   <style scoped>
   .task-board {
