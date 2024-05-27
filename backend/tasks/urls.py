@@ -5,6 +5,7 @@ from .views import TaskViewSet, TimeEntryViewSet
 router = DefaultRouter()
 router.register(r'tasks', TaskViewSet)
 router.register(r'time-entries', TimeEntryViewSet)
+router.register(r'comments', CommentViewSet)
 
 urlpatterns = router.urls
 
