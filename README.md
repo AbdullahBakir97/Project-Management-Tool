@@ -53,7 +53,6 @@ This is a project management application built with Django and Vue.js. It offers
    git clone https://github.com/AbdullahBakir97/Project-Management-Tool.git
    cd Project-Management-Tool/backend
    ```
-
 2.	Create a virtual environment and activate it:
    
    ```
@@ -168,6 +167,7 @@ Ensure that your Vue.js application correctly handles the authentication tokens 
    ```
 3.	Router Configuration:
 - Set up route guards to protect authenticated routes.
+
    ```vue
    import { createRouter, createWebHistory } from 'vue-router';
    import Login from '../components/LoginUser.vue';
@@ -198,8 +198,10 @@ Ensure that your Vue.js application correctly handles the authentication tokens 
    
    export default router;
    ```
+
 4.	Main Entry File:
 - Integrate the Vuex store and Vue Router into your Vue application.
+   
    ```vue
    import { createApp } from 'vue';
    import App from './App.vue';
