@@ -112,7 +112,7 @@ Ensure that your Vue.js application correctly handles the authentication tokens 
 
 1.	Axios Instance Setup:
 - Create an Axios instance with the base URL of your Django backend API.
-   ```vue
+```vue
    import axios from 'axios';
 
    const api = axios.create({
@@ -120,10 +120,10 @@ Ensure that your Vue.js application correctly handles the authentication tokens 
    });
 
    export default api;
-   ```
+```
 2.	Vuex Store Configuration:
 - Set up Vuex for state management, including handling authentication tokens.
-   ```vue
+```vue
    import { createStore } from 'vuex';
    import api from '../service/api';
    
@@ -164,11 +164,11 @@ Ensure that your Vue.js application correctly handles the authentication tokens 
    });
    
    export default store;
-   ```
+```
 3.	Router Configuration:
 - Set up route guards to protect authenticated routes.
 
-   ```vue
+```vue
    import { createRouter, createWebHistory } from 'vue-router';
    import Login from '../components/LoginUser.vue';
    import TaskBoard from '../components/TaskBoard.vue';
@@ -197,12 +197,12 @@ Ensure that your Vue.js application correctly handles the authentication tokens 
    });
    
    export default router;
-   ```
+```
 
 4.	Main Entry File:
 - Integrate the Vuex store and Vue Router into your Vue application.
    
-   ```vue
+```vue
    import { createApp } from 'vue';
    import App from './App.vue';
    import store from './store';
@@ -218,7 +218,7 @@ Ensure that your Vue.js application correctly handles the authentication tokens 
    app.config.globalProperties.$http = api;
    
    app.mount('#app');
-   ```
+```
 
 ## License
 
