@@ -102,8 +102,8 @@ This is a project management application built with Django and Vue.js. It offers
 
 ## Usage
 
-	•	Access the Django admin panel at http://localhost:8000/admin to manage users and data.
-	•	Access the frontend application at http://localhost:8080 to start using the project management tool.
+- Access the Django admin panel at http://localhost:8000/admin to manage users and data.
+- Access the frontend application at http://localhost:8080 to start using the project management tool.
 
 ## Configuration
 
@@ -111,5 +111,113 @@ This is a project management application built with Django and Vue.js. It offers
 
 Ensure that your Vue.js application correctly handles the authentication tokens and communicates with the Django backend.
 
-	1.	Axios Instance Setup:
-Create an Axios instance with the base URL of your Django backend API.
+1.	Axios Instance Setup:
+- Create an Axios instance with the base URL of your Django backend API.
+   ```vue
+   import axios from 'axios';
+
+   const api = axios.create({
+   baseURL: 'http://localhost:8000/api',  // Change this to your actual API base URL
+   });
+
+   export default api;
+   ```
+2.	Vuex Store Configuration:
+- Set up Vuex for state management, including handling authentication tokens.
+   ```vue
+   import { createStore } from 'vuex';
+   import api from '../service/api';
+   
+   const store = createStore({
+     state: {
+       authToken: localStorage.getItem('authToken') || null,
+     },
+     mutations: {
+       setAuthToken(state, token) {
+         state.authToken = token;
+         localStorage.setItem('authToken', token);
+         api.defaults.headers.common['Authorization'] = `Token ${token}`;
+       },
+       clearAuthToken(state) {
+         state.authToken = null;
+         localStorage.removeItem('authToken');
+         delete api.defaults.headers.common['Authorization'];
+       },
+     },
+     actions: {
+       async login({ commit }, credentials) {
+         const response = await api.post('auth/token/login/', credentials);
+         commit('setAuthToken', response.data.auth_token);
+         await this.dispatch('fetchUser');
+       },
+       async logout({ commit }) {
+         await api.post('auth/token/logout/');
+         commit('clearAuthToken');
+       },
+       async fetchUser({ commit }) {
+         const response = await api.get('auth/users/me/');
+         commit('setUser', response.data);
+       },
+     },
+     getters: {
+       isAuthenticated: state => !!state.authToken,
+     },
+   });
+   
+   export default store;
+   ```
+3.	Router Configuration:
+- Set up route guards to protect authenticated routes.
+   ```vue
+   import { createRouter, createWebHistory } from 'vue-router';
+   import Login from '../components/LoginUser.vue';
+   import TaskBoard from '../components/TaskBoard.vue';
+   import store from '../store';
+   
+   const routes = [
+     { path: '/', redirect: '/login' },
+     { path: '/login', component: Login },
+     { path: '/tasks', component: TaskBoard, meta: { requiresAuth: true } },
+   ];
+   
+   const router = createRouter({
+     history: createWebHistory(),
+     routes,
+   });
+   
+   router.beforeEach((to, from, next) => {
+     const requiresAuth = to.matched.some(record => record.meta.requiresAuth);
+     const isAuthenticated = store.getters.isAuthenticated;
+   
+     if (requiresAuth && !isAuthenticated) {
+       next('/login');
+     } else {
+       next();
+     }
+   });
+   
+   export default router;
+   ```
+4.	Main Entry File:
+- Integrate the Vuex store and Vue Router into your Vue application.
+   ```vue
+   import { createApp } from 'vue';
+   import App from './App.vue';
+   import store from './store';
+   import router from './router';
+   import api from './service/api';
+   
+   const app = createApp(App);
+   
+   app.use(store);
+   app.use(router);
+   
+   // Attach axios instance to the global properties
+   app.config.globalProperties.$http = api;
+   
+   app.mount('#app');
+   ```
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
