@@ -42,3 +42,74 @@ This is a project management application built with Django and Vue.js. It offers
 
 10. **Notifications and Reminders**
     - Implement email notifications, in-app alerts, and reminders to keep users informed about important updates, upcoming deadlines, and assigned tasks.
+
+## Installation
+
+### Backend (Django)
+
+1. Clone the repository:
+
+   ```
+   git clone https://github.com/AbdullahBakir97/Project-Management-Tool.git
+   cd Project-Management-Tool/backend
+   ```
+
+2.	Create a virtual environment and activate it:
+   
+   ```
+   python -m venv venv
+   source venv/bin/activate  
+   # On Windows use `venv\Scripts\activate`
+   ```
+3.	Install the required packages:
+
+   ```
+   pip install -r requirements.txt
+   ```
+4.	Apply the migrations:
+
+   ```
+   python manage.py migrate
+   ```
+5.	Create a superuser:
+
+   ```
+   python manage.py createsuperuser
+   ```
+6.	Start the development server:
+
+   ```
+   python manage.py runserver
+   ```
+
+### Frontend (Vue.js)
+
+1.	Navigate to the frontend directory:
+
+   ```
+   cd ../project-frontend
+   ```
+2.	Install the required packages:
+
+   ```
+   npm install
+   ```
+3.	Start the development server:
+
+   ```
+   npm run serve
+   ```
+
+## Usage
+
+	•	Access the Django admin panel at http://localhost:8000/admin to manage users and data.
+	•	Access the frontend application at http://localhost:8080 to start using the project management tool.
+
+## Configuration
+
+### Vue.js and Axios Setup
+
+Ensure that your Vue.js application correctly handles the authentication tokens and communicates with the Django backend.
+
+	1.	Axios Instance Setup:
+Create an Axios instance with the base URL of your Django backend API.
