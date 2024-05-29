@@ -13,5 +13,6 @@ module.exports = {
     onBeforeSetupMiddleware(devServer) {
       devServer.app.use('/__open-in-editor', openInEditor());
     },
+    hot: true,
   },
 };

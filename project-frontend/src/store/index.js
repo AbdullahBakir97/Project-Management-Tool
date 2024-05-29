@@ -1,6 +1,5 @@
-import { createStore } from 'vuex'
+import { createStore } from 'vuex';
 import api from '../service/api';
-
 
 export default createStore({
   state: {
@@ -14,7 +13,7 @@ export default createStore({
   },
   getters: {
     projects: state => state.projects,
-    tasksByStatus: state => status => state.tasks.filter(task => task.status === status),
+    tasksByStatus: state => status => state.tasks.filter(task => task.status === status), // bug 
     timeEntriesByTask: state => taskId => state.timeEntries.filter(entry => entry.task === taskId),
     commentsByTask: state => taskId => state.comments.filter(comment => comment.task === taskId),
     filesByTask: state => taskId => state.files.filter(file => file.task === taskId),

@@ -18,9 +18,11 @@
 			<div class="task-columns">
 				<div v-for="status in statuses" :key="status" :data-status="status">
 					<h3>{{ statusLabels[status] }}</h3>
-					<draggable :list="tasksByStatus[status]" @end="onEnd">
-						<TaskCard v-for="task in tasksByStatus[status]" :key="task.id" :task="task"
-							@edit-task="editTask" />
+					<draggable :list="tasksByStatus(status)" @end="onEnd"> // bug
+						<template #item="{ element }">
+							<TaskCard v-for="task in tasksByStatus[status]" :key="task.id" :task="element"
+								@edit-task="editTask" />
+						</template>
 					</draggable>
 				</div>
 			</div>
@@ -92,7 +94,7 @@ export default {
 			selectedProjectId: null,
 			loading: false,
 			error: null,
-			tasks: [], // Ensure tasks is defined
+			tasks: [],
 		};
 	},
 	computed: {
